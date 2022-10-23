@@ -1,0 +1,28 @@
+[development]
+dynaconf_merge = true
+
+[development.server]
+port = 8000
+host = "127.0.0.1"
+log_level = "debug"
+reload = true
+cors_origins = []
+
+[production]
+dynaconf_merge = true
+
+[production.server]
+port = 8000
+host = "127.0.0.1"
+log_level = "error"
+reload = false
+
+[testing]
+dynaconf_merge = true
+
+[testing.server]
+port = 8000
+host = "127.0.0.1"
+log_level = "info"
+reload = false
+cors_origins = []
