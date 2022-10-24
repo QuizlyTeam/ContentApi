@@ -22,13 +22,17 @@ description = """
 ContentAPI helps you do awesome stuff. 🚀
 """
 
+version = read('VERSION')
+
 app = FastAPI(
     title="ContentAPI",
     description=description,
-    version=read('VERSION')
+    version=version
 )
 
 if settings.server and settings.server.get("cors_origins", None):
+    env = settings.as_dict(internal=True).get('ENV', 'development')
+    print(f"\033[32mINFO\033[0m:\tContentAPI@{version} has just started working ({env})")
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.server.cors_origins,

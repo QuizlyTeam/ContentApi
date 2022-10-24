@@ -39,4 +39,5 @@ setup(
     entry_points={
         "console_scripts": ["contentapi = api.__main__:main"]
     },
+    extras_require={"test": read_requirements("requirements-test.txt")},
 )
