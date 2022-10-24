@@ -5,9 +5,9 @@ ContentApi is a REST API, which expose interfaces for our mobile application.
 ## Installation
 
 ```bash
-    git clone https://github.com/QuizlyTeam/ContentApi.git
-    cd ContentApi
-    make install
+git clone https://github.com/QuizlyTeam/ContentApi.git
+cd ContentApi
+make install
 ```
 
 ## Executing
