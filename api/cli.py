@@ -5,12 +5,13 @@ from .config import settings
 
 cli = typer.Typer(name="project_name API")
 
+
 @cli.command()
 def run(
     port: int = settings.server.port,
     host: str = settings.server.host,
     log_level: str = settings.server.log_level,
-    reload: bool = settings.server.reload
+    reload: bool = settings.server.reload,
 ):
     """Run the API server."""
     uvicorn.run(

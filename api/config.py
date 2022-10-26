@@ -10,7 +10,7 @@ settings = Dynaconf(
     settings_files=["settings.toml"],
     environments=["development", "production", "testing"],
     env_switcher="CONTENTAPI_ENV",
-    load_dotenv=False
+    load_dotenv=False,
 )
 
 """

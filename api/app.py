@@ -5,6 +5,8 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
 from .config import settings
+from .routes import main_router
+
 
 def read(*paths, **kwargs):
     """Read the contents of a text file safely.
@@ -18,21 +20,21 @@ def read(*paths, **kwargs):
         content = open_file.read().strip()
     return content
 
+
 description = """
 ContentAPI helps you do awesome stuff. 🚀
 """
 
-version = read('VERSION')
+version = read("VERSION")
 
-app = FastAPI(
-    title="ContentAPI",
-    description=description,
-    version=version
+app = FastAPI(title="ContentAPI", description=description, version=version)
+
+env = settings.as_dict(internal=True).get("ENV", "development")
+print(
+    f"\033[32mINFO\033[0m:\t  ContentAPI@{version} has just started working ({env})"  # noqa: E501
 )
 
 if settings.server and settings.server.get("cors_origins", None):
-    env = settings.as_dict(internal=True).get('ENV', 'development')
-    print(f"\033[32mINFO\033[0m:\tContentAPI@{version} has just started working ({env})")
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.server.cors_origins,
@@ -41,4 +43,4 @@ if settings.server and settings.server.get("cors_origins", None):
         allow_headers=settings.get("server.cors_allow_headers", ["*"]),
     )
 
-# app.include_router(main_router)
+app.include_router(main_router)
