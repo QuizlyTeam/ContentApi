@@ -77,8 +77,7 @@ virtualenv:       ## Create a virtual environment.
 .PHONY: docs
 docs:             ## Build the documentation.
 	@echo "building documentation ..."
-	@$(ENV_PREFIX)mkdocs build
-	URL="site/index.html"; xdg-open $$URL || sensible-browser $$URL || x-www-browser $$URL || gnome-open $$URL  || open $$URL
+	@$(ENV_PREFIX)mkdocs serve
 
 .PHONY: switch-to-poetry
 switch-to-poetry: ## Switch to poetry package manager.
