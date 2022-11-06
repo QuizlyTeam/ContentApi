@@ -1,5 +1,6 @@
 # This requirements are for development and testing only, not for production.
 pytest
+requests-mock
 coverage
 flake8
 black
@@ -7,5 +8,4 @@ isort
 pytest-cov
 codecov
 mypy
-mkdocs
 pytest-picked

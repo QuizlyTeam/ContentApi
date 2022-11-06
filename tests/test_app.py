@@ -1,10 +1,3 @@
-def test_index(api_client):
-    response = api_client.get("/")
-    assert response.status_code == 200
-    result = response.json()
-    assert result["message"] == "Hello World!"
-
-
 def test_cors_header(api_client):
     valid_origin = ["http://localhost:3000", "http://localhost:4200"]
     invalid_origin = ["http://localhost:3200", "http://localhost:4000"]

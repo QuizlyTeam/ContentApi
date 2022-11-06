@@ -2,3 +2,5 @@ uvicorn
 fastapi
 dynaconf
 typer
+requests
+types-requests

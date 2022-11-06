@@ -1,7 +1,9 @@
 import io
+import json
 import os
 
 from fastapi import FastAPI
+from fastapi.openapi.utils import get_openapi
 from starlette.middleware.cors import CORSMiddleware
 
 from .config import settings
@@ -44,3 +46,15 @@ if settings.server and settings.server.get("cors_origins", None):
     )
 
 app.include_router(main_router)
+
+with open("openapi.json", "w") as f:
+    json.dump(
+        get_openapi(
+            title=app.title,
+            version=app.version,
+            openapi_version=app.openapi_version,
+            description=app.description,
+            routes=app.routes,
+        ),
+        f,
+    )

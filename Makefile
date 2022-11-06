@@ -38,7 +38,7 @@ lint:             ## Run pep8, black, mypy linters.
 	$(ENV_PREFIX)mypy --ignore-missing-imports api/
 
 .PHONY: test
-test: lint        ## Run tests and generate coverage report.
+test:             ## Run tests and generate coverage report.
 	$(ENV_PREFIX)pytest -v --cov-config .coveragerc --cov=api -l --tb=short --maxfail=1 tests/
 	$(ENV_PREFIX)coverage xml
 	$(ENV_PREFIX)coverage html
@@ -73,11 +73,6 @@ virtualenv:       ## Create a virtual environment.
 	@./.venv/bin/pip install -e .[test]
 	@echo
 	@echo "!!! Please run 'source .venv/bin/activate' to enable the environment !!!"
-
-.PHONY: docs
-docs:             ## Build the documentation.
-	@echo "building documentation ..."
-	@$(ENV_PREFIX)mkdocs serve
 
 .PHONY: switch-to-poetry
 switch-to-poetry: ## Switch to poetry package manager.
