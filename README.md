@@ -1,6 +1,6 @@
 # ContentApi
 
-ContentApi is a REST API, which expose interfaces for our mobile application.
+ContentApi is a REST API, which expose interfaces for our mobile application. List of available endpoints - [HERE](https://quizlyteam.github.io/ContentApi/).
 
 ## Installation
 
