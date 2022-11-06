@@ -5,3 +5,4 @@ port = 8000
 host = "127.0.0.1"
 log_level = "info"
 reload = false
+quiz_api = "https://the-trivia-api.com/api/"

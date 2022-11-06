@@ -1,12 +1,10 @@
 from fastapi import APIRouter
 
-from .teapot import router as teapot_router
+from ..constants.tags import Tags
+from .quizzes import router as quizzes_router
 
-main_router = APIRouter()
+main_router = APIRouter(prefix="/v1")
 
-main_router.include_router(teapot_router)
-
-
-@main_router.get("/")
-async def index():
-    return {"message": "Hello World!"}
+main_router.include_router(
+    quizzes_router, prefix="/quizzes", tags=[Tags.quizzes]
+)
