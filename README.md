@@ -34,7 +34,9 @@ Options:
 
 ## API
 
-Run with `contentapi` and access http://127.0.0.1:8000/docs
+Run with `contentapi` and access:
+- http://127.0.0.1:8000/docs
+- http://127.0.0.1:8000/redoc
 
 ## Make
 
@@ -52,7 +54,6 @@ test:             ## Run tests and generate coverage report.
 watch:            ## Run tests on every change.
 clean:            ## Clean unused files.
 virtualenv:       ## Create a virtual environment.
-docs:             ## Build the documentation.
 switch-to-poetry: ## Switch to poetry package manager.
 ```
 
@@ -116,8 +117,8 @@ Read more on https://dynaconf.com
 ├── LICENSE                  # The license for the project
 ├── Makefile                 # A collection of utilities to manage the project
 ├── MANIFEST.in              # A list of files to include in a package
-├── mkdocs.yml               # Configuration for documentation site
 ├── api                      # The main python package for the project
+│   ├── constants            # A list of constants in API
 │   ├── routes               # A list of routes available through API
 │   ├── schemas              # Pydantic models
 │   ├── services             # Contains files responsible for working to external APIs, database, etc.
