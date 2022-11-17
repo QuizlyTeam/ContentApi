@@ -38,7 +38,7 @@ async def get_categories():
 
 @router.get(
     "/tags",
-    response_model=CategoriesModel,
+    response_model=list,
     responses={
         status.HTTP_200_OK: {
             "description": "Successful Response",
@@ -61,6 +61,6 @@ async def get_tags():
     Get quiz categories.
     """
     result = get(f"{settings.server.quiz_api}/tags")
-    categories = list(result.json().keys())
+    categories = list(result.json())
 
-    return {"categories": categories}
+    return categories
