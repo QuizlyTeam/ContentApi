@@ -13,11 +13,11 @@ def test_get_categories(mock_request, settings, api_client):
 
 
 def test_get_tags(mock_request, settings, api_client):
-    categories = ["alcohol", "acting"]
-    expected_result = ["alcohol", "acting"]
+    tags = ["alcohol", "acting"]
+    expected_result = {"tags": tags}
     mock_request.get(
         url=f"{settings.server.quiz_api}/tags",
-        json=categories,
+        json=tags,
         status_code=200,
     )
     response = api_client.get("/v1/quizzes/tags")

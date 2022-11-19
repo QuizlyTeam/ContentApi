@@ -2,7 +2,7 @@ from fastapi import APIRouter, status
 from requests import get
 
 from ..config import settings
-from ..schemas.quizzes import CategoriesModel
+from ..schemas.quizzes import CategoriesModel, TagsModel
 
 router = APIRouter()
 
@@ -38,16 +38,15 @@ async def get_categories():
 
 @router.get(
     "/tags",
-    response_model=list,
+    response_model=TagsModel,
     responses={
         status.HTTP_200_OK: {
             "description": "Successful Response",
             "content": {
                 "application/json": {
-                    "example": [
-                        "alcohol",
-                        "acting"
-                    ]
+                    "example": {
+                        "tags": ["alcohol", "acting"]
+                    }
                 }
             },
         },
@@ -61,6 +60,6 @@ async def get_tags():
     Get quiz categories.
     """
     result = get(f"{settings.server.quiz_api}/tags")
-    categories = list(result.json())
+    tags = list(result.json())
 
-    return categories
+    return {"tags": tags}
