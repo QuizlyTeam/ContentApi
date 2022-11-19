@@ -4,3 +4,4 @@ dynaconf
 typer
 requests
 types-requests
+httpx
