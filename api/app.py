@@ -5,9 +5,11 @@ import os
 from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
 from starlette.middleware.cors import CORSMiddleware
+from socketio import AsyncServer, ASGIApp
 
 from .config import settings
 from .routes import main_router
+from .services.connection_manager import ConnectionManager
 
 
 def read(*paths, **kwargs):
@@ -29,6 +31,9 @@ ContentAPI helps you do awesome stuff. 🚀
 
 version = read("VERSION")
 
+sio = AsyncServer(async_mode="asgi", cors_allowed_origins='*')
+sio.register_namespace(ConnectionManager('/'))
+socket_app = ASGIApp(sio)
 app = FastAPI(title="ContentAPI", description=description, version=version)
 
 env = settings.as_dict(internal=True).get("ENV", "development")
@@ -45,7 +50,11 @@ if settings.server and settings.server.get("cors_origins", None):
         allow_headers=settings.get("server.cors_allow_headers", ["*"]),
     )
 
+# Main router for the API.
 app.include_router(main_router)
+
+# add websocket
+app.mount("/", socket_app)
 
 with open("openapi.json", "w") as f:
     json.dump(

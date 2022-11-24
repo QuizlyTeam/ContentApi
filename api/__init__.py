@@ -1,4 +1,4 @@
-from .app import app
+from .app import app, sio
 from .config import settings
 
-__all__ = ["app", "cli", "settings"]
+__all__ = ["app", "sio", "cli", "settings"]
