@@ -2,10 +2,11 @@ from typing import List, Literal, Optional, Union
 
 from pydantic import BaseModel, Field
 
-
 class CategoriesModel(BaseModel):
     categories: List[str]
 
+class TagsModel(BaseModel):
+    tags: List[str]
 
 class GameJoinModel(BaseModel):
     name: str

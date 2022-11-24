@@ -5,3 +5,4 @@ typer
 requests
 types-requests
 python-socketio
+httpx
