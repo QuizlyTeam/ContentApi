@@ -44,9 +44,7 @@ async def get_categories():
             "description": "Successful Response",
             "content": {
                 "application/json": {
-                    "example": {
-                        "tags": ["alcohol", "acting"]
-                    }
+                    "example": {"tags": ["alcohol", "acting"]}
                 }
             },
         },
@@ -57,7 +55,7 @@ async def get_categories():
 )
 async def get_tags():
     """
-    Get quiz categories.
+    Get tags.
     """
     result = get(f"{settings.server.quiz_api}/tags")
     tags = list(result.json())
