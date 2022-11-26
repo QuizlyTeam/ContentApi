@@ -1,7 +1,8 @@
-uvicorn
+uvicorn[standard]
 fastapi
 dynaconf
 typer
 requests
 types-requests
+python-socketio
 httpx
