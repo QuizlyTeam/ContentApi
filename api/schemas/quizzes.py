@@ -2,11 +2,14 @@ from typing import List, Literal, Optional, Union
 
 from pydantic import BaseModel, Field
 
+
 class CategoriesModel(BaseModel):
     categories: List[str]
 
+
 class TagsModel(BaseModel):
     tags: List[str]
+
 
 class GameJoinModel(BaseModel):
     name: str
@@ -16,6 +19,7 @@ class GameJoinModel(BaseModel):
     tags: Optional[Union[str, List[str]]]
     with_friends: Optional[bool] = False
     max_players: Optional[int] = 1
+
 
 class GameAnswerModel(BaseModel):
     answer: str
