@@ -1,16 +1,24 @@
 import os
 import sys
 import pytest
+import asyncio
+import uvicorn
+import socketio
+import requests
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from typer.testing import CliRunner
 from requests_mock.mocker import Mocker
-import requests
+from typing import List, Optional
 
 # This next line ensures tests uses its own settings environment
 os.environ["FORCE_ENV_FOR_DYNACONF"] = "testing"  # noqa
 
-from api import app, settings  # noqa
+from api import sio, app, settings  # noqa
 from api.cli import cli  # noqa
+
+# deactivate monitoring task in python-socketio to avoid errores during shutdown
+sio.eio.start_service_task = False
 
 # each test runs on cwd to its temp dir
 @pytest.fixture(autouse=True)
@@ -55,6 +63,8 @@ def _requests():
 
 
 class MockRequests:
+    """Mock http requests"""
+
     def __init__(self, requests_mock: Mocker) -> None:
         self.req = requests_mock
         self.req.real_http = True
@@ -66,3 +76,41 @@ class MockRequests:
 @pytest.fixture(scope="function")
 def mock_request(requests_mock: Mocker):
     return MockRequests(requests_mock)
+
+
+class UvicornTestServer(uvicorn.Server):
+    """Uvicorn test server"""
+
+    def __init__(
+        self, app: FastAPI = app, host: str = "127.0.0.1", port: int = 8080
+    ):
+        """Create a Uvicorn test server
+
+        Args:
+            app (FastAPI, optional): the FastAPI app. Defaults to app.
+            host (str, optional): the host ip. Defaults to '127.0.0.1'.
+            port (int, optional): the port. Defaults to 8080.
+        """
+        self._startup_done = asyncio.Event()
+        super().__init__(config=uvicorn.Config(app, host=host, port=port))
+
+    async def startup(self, sockets: Optional[List] = None) -> None:
+        """Override uvicorn startup"""
+        await super().startup(sockets=sockets)
+        self.config.setup_event_loop()
+        self._startup_done.set()
+
+    async def up(self) -> None:
+        """Start up server asynchronously"""
+        self._serve_task = asyncio.create_task(self.serve())
+        await self._startup_done.wait()
+
+    async def down(self) -> None:
+        """Shut down server asynchronously"""
+        self.should_exit = True
+        await self._serve_task
+
+
+@pytest.fixture(scope="function")
+def server():
+    return UvicornTestServer()
