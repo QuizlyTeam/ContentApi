@@ -61,6 +61,7 @@ async def test_game_solo_connection_error(server, settings, mock_request):
     assert future.result() == "Connection error"
     await server.down()
 
+
 @pytest.mark.asyncio
 async def test_game_solo_answer_error(server, settings, mock_request):
     """Server should capture invalid input data and end connection"""
@@ -83,7 +84,6 @@ async def test_game_solo_answer_error(server, settings, mock_request):
     future = asyncio.get_running_loop().create_future()
     future_error = asyncio.get_running_loop().create_future()
 
-    
     @sio.on("question")
     def on_question(data):
         future.set_result(data)
@@ -107,12 +107,13 @@ async def test_game_solo_answer_error(server, settings, mock_request):
     await asyncio.wait_for(future, timeout=20.0)
     results = future.result()
     assert results["question"] == questions[0]["question"]
-    assert results["answers"] == ["A", "B", "C", "D"]
+    assert sorted(results["answers"]) == ["A", "B", "C", "D"]
     await sio.emit("answer", {})
     await asyncio.wait_for(future_error, timeout=1.0)
     assert future_error.result() == "Invalid input"
     await sio.disconnect()
     await server.down()
+
 
 @pytest.mark.asyncio
 async def test_game_solo(server, settings, mock_request):
@@ -127,7 +128,7 @@ async def test_game_solo(server, settings, mock_request):
             "question": "question 2",
             "correctAnswer": "D",
             "incorrectAnswers": ["A", "B", "C"],
-        }
+        },
     ]
     mock_request.get(
         url=f"{settings.server.quiz_api}/questions",
