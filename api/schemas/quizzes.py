@@ -21,6 +21,11 @@ class GameJoinModel(BaseModel):
     max_players: Optional[int] = 1
 
 
+class GameCodeJoinModel(BaseModel):
+    room: str
+    name: str
+
+
 class GameAnswerModel(BaseModel):
     answer: str
     time: Union[float, int]
