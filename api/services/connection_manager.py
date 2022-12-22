@@ -9,7 +9,7 @@ from requests import get
 from socketio import AsyncNamespace
 
 from ..config import settings
-from ..schemas.quizzes import GameAnswerModel, GameJoinModel
+from ..schemas.quizzes import GameAnswerModel, GameCodeJoinModel, GameJoinModel
 
 
 class ConnectionManager(AsyncNamespace):
@@ -155,7 +155,18 @@ class ConnectionManager(AsyncNamespace):
                                 self.connections[room]["names"][
                                     sid
                                 ] = game_options.name  # noqa
-                                await self.emit("join", room, to=sid)
+                                await self.emit(
+                                    "join",
+                                    {
+                                        "room": room,
+                                        "number_of_players": len(
+                                            self.connections[room][
+                                                "current_players"
+                                            ]
+                                        ),
+                                    },
+                                    to=sid,
+                                )
                                 return
 
                 # if no connections found, create one
@@ -170,7 +181,16 @@ class ConnectionManager(AsyncNamespace):
                     "game_options": game_options.dict(),
                 }
                 await self.get_questions(sid=room, options=game_options.dict())
-                await self.emit("join", room, to=sid)
+                await self.emit(
+                    "join",
+                    {
+                        "room": room,
+                        "number_of_players": len(
+                            self.connections[room]["current_players"]
+                        ),
+                    },
+                    to=sid,
+                )
                 await self.wait_for_players(sid=room)
                 if len(self.connections[room]["current_players"]) > 0:
                     await self.send_questions(sid=room)
@@ -181,11 +201,35 @@ class ConnectionManager(AsyncNamespace):
                 self.end_connection(room)
 
         except ValidationError:
-            await self.emit("error", "Invalid input", room=sid)
-            await self.disconnect(sid)
+            try:
+                game_code_options = GameCodeJoinModel(**options)
+                if self.is_active_connection(game_code_options.room):
+                    self.enter_room(sid, game_code_options.room)
+                    self.connections[game_code_options.room]["names"][
+                        sid
+                    ] = game_code_options.name  # noqa
+                    await self.emit(
+                        "join",
+                        {
+                            "room": game_code_options.room,
+                            "number_of_players": len(
+                                self.connections[game_code_options.room][
+                                    "current_players"
+                                ]
+                            ),
+                        },
+                        to=sid,
+                    )
+                else:
+                    await self.emit("error", "No room found", to=sid)
+                    await self.disconnect(sid)
+            except ValidationError:
+                await self.emit("error", "Invalid input", to=sid)
+                await self.disconnect(sid)
 
     async def on_ready(self, sid: str) -> None:
         room = self.get_rooms(sid)[0]
+        print(room, sid)
         if sid not in self.connections[room]["current_players"]:
             self.connections[room]["points"][sid] = 0
             self.connections[room]["answered"][sid] = [
@@ -194,6 +238,16 @@ class ConnectionManager(AsyncNamespace):
                 "limit"
             ]  # noqa
             self.connections[room]["current_players"].append(sid)
+            await self.emit(
+                "join",
+                {
+                    "room": room,
+                    "number_of_players": len(
+                        self.connections[room]["current_players"]
+                    ),
+                },
+                to=room,
+            )
 
     async def on_answer(self, sid: str, data: dict) -> None:
         room = sid if len(self.get_rooms(sid)) == 0 else self.get_rooms(sid)[0]
