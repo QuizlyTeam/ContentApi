@@ -26,7 +26,7 @@ def read(*paths, **kwargs):
     return content
 
 if os.path.exists("key.json"):
-    credential = credentials.Certificate("path/to/serviceAccountKey.json")
+    credential = credentials.Certificate("key.json")
     initialize_app(
         credential,
         options={
