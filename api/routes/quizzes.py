@@ -1,13 +1,21 @@
-from fastapi import APIRouter, status, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse, Response
-from requests import get
 from firebase_admin import db
 from firebase_admin.exceptions import FirebaseError
+from requests import get
 
 from ..config import settings
 from ..dependencies import get_user_token
-from ..schemas.quizzes import CategoriesModel, TagsModel, UserQuiz, UserQuizzes, DeleteUserQuizzes, CreateUserQuiz, UpdateUserQuiz
+from ..schemas.quizzes import (
+    CategoriesModel,
+    CreateUserQuiz,
+    DeleteUserQuizzes,
+    TagsModel,
+    UpdateUserQuiz,
+    UserQuiz,
+    UserQuizzes,
+)
 
 router = APIRouter()
 
@@ -39,8 +47,8 @@ async def get_categories():
     categories = list(result.json().keys())
 
     return JSONResponse(
-            content=jsonable_encoder({"categories": categories}),
-        )
+        content=jsonable_encoder({"categories": categories}),
+    )
 
 
 @router.get(
@@ -68,8 +76,9 @@ async def get_tags():
     tags = list(result.json())
 
     return JSONResponse(
-            content=jsonable_encoder({"tags": tags}),
-        )
+        content=jsonable_encoder({"tags": tags}),
+    )
+
 
 @router.post(
     "/",
@@ -85,27 +94,27 @@ async def get_tags():
                         "difficulty": "easy",
                         "questions": [
                             {
-                            "correct_answer": "in London in 1912",
-                            "incorrect_answers": [
-                                "in Manchester in 1901",
-                                "in Oxford in 1924",
-                                "in Cambridge in 1935"
-                            ],
-                            "question": "Where and when was Alan Turing born?"
+                                "correct_answer": "in London in 1912",
+                                "incorrect_answers": [
+                                    "in Manchester in 1901",
+                                    "in Oxford in 1924",
+                                    "in Cambridge in 1935",
+                                ],
+                                "question": "Where and when was Alan Turing born?",  # noqa
                             },
                             {
-                            "correct_answer": "a Turing Machine",
-                            "incorrect_answers": [
-                                "the Bombe",
-                                "Church's Computer",
-                                "the Manchester Mach I"
-                            ],
-                            "question": "Turing, while solving the Decision Problem, proposed a hypothetical computing machine, which we now call ___"
-                            }
+                                "correct_answer": "a Turing Machine",
+                                "incorrect_answers": [
+                                    "the Bombe",
+                                    "Church's Computer",
+                                    "the Manchester Mach I",
+                                ],
+                                "question": "Turing, while solving the Decision Problem, proposed a hypothetical computing machine, which we now call ___",  # noqa
+                            },
                         ],
                         "tags": "1910's",
                         "title": "The father of the computer",
-                        "uid": "XXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+                        "uid": "XXXXXXXXXXXXXXXXXXXXXXXXXXXX",
                     }
                 }
             },
@@ -131,15 +140,11 @@ async def post_user_quiz(body: CreateUserQuiz, user=Depends(get_user_token)):
     """
     Create user quiz.
     """
-    userQuiz = UserQuiz(
-        **{
-            "uid": user["uid"],
-            **body.dict()
-        }
-    )
+    userQuiz = UserQuiz(**{"uid": user["uid"], **body.dict()})
     try:
         if (
-            db.reference("Users").order_by_child("uid")
+            db.reference("Users")
+            .order_by_child("uid")
             .equal_to(userQuiz.uid)
             .limit_to_first(1)
             .get()
@@ -157,6 +162,7 @@ async def post_user_quiz(body: CreateUserQuiz, user=Depends(get_user_token)):
     except FirebaseError:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
 @router.get(
     "/",
     response_model=UserQuizzes,
@@ -171,27 +177,27 @@ async def post_user_quiz(body: CreateUserQuiz, user=Depends(get_user_token)):
                             "difficulty": "easy",
                             "questions": [
                                 {
-                                "correct_answer": "in London in 1912",
-                                "incorrect_answers": [
-                                    "in Manchester in 1901",
-                                    "in Oxford in 1924",
-                                    "in Cambridge in 1935"
-                                ],
-                                "question": "Where and when was Alan Turing born?"
+                                    "correct_answer": "in London in 1912",
+                                    "incorrect_answers": [
+                                        "in Manchester in 1901",
+                                        "in Oxford in 1924",
+                                        "in Cambridge in 1935",
+                                    ],
+                                    "question": "Where and when was Alan Turing born?",  # noqa
                                 },
                                 {
-                                "correct_answer": "a Turing Machine",
-                                "incorrect_answers": [
-                                    "the Bombe",
-                                    "Church's Computer",
-                                    "the Manchester Mach I"
-                                ],
-                                "question": "Turing, while solving the Decision Problem, proposed a hypothetical computing machine, which we now call ___"
-                                }
+                                    "correct_answer": "a Turing Machine",
+                                    "incorrect_answers": [
+                                        "the Bombe",
+                                        "Church's Computer",
+                                        "the Manchester Mach I",
+                                    ],
+                                    "question": "Turing, while solving the Decision Problem, proposed a hypothetical computing machine, which we now call ___",  # noqa
+                                },
                             ],
                             "tags": "1910's",
                             "title": "The father of the computer",
-                            "uid": "XXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+                            "uid": "XXXXXXXXXXXXXXXXXXXXXXXXXXXX",
                         }
                     }
                 }
@@ -233,12 +239,13 @@ async def get_user_quizzes(user=Depends(get_user_token)):
             )
         else:
             ref = db.reference("Quizzes")
-            user_quizzes = ref.order_by_child("uid").equal_to(user["uid"]).get()
-            return JSONResponse(
-                content=jsonable_encoder(user_quizzes)
+            user_quizzes = (
+                ref.order_by_child("uid").equal_to(user["uid"]).get()
             )
+            return JSONResponse(content=jsonable_encoder(user_quizzes))
     except FirebaseError:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 @router.get(
     "/{quiz_id}",
@@ -253,27 +260,27 @@ async def get_user_quizzes(user=Depends(get_user_token)):
                         "difficulty": "easy",
                         "questions": [
                             {
-                            "correct_answer": "in London in 1912",
-                            "incorrect_answers": [
-                                "in Manchester in 1901",
-                                "in Oxford in 1924",
-                                "in Cambridge in 1935"
-                            ],
-                            "question": "Where and when was Alan Turing born?"
+                                "correct_answer": "in London in 1912",
+                                "incorrect_answers": [
+                                    "in Manchester in 1901",
+                                    "in Oxford in 1924",
+                                    "in Cambridge in 1935",
+                                ],
+                                "question": "Where and when was Alan Turing born?",  # noqa
                             },
                             {
-                            "correct_answer": "a Turing Machine",
-                            "incorrect_answers": [
-                                "the Bombe",
-                                "Church's Computer",
-                                "the Manchester Mach I"
-                            ],
-                            "question": "Turing, while solving the Decision Problem, proposed a hypothetical computing machine, which we now call ___"
-                            }
+                                "correct_answer": "a Turing Machine",
+                                "incorrect_answers": [
+                                    "the Bombe",
+                                    "Church's Computer",
+                                    "the Manchester Mach I",
+                                ],
+                                "question": "Turing, while solving the Decision Problem, proposed a hypothetical computing machine, which we now call ___",  # noqa
+                            },
                         ],
                         "tags": "1910's",
                         "title": "The father of the computer",
-                        "uid": "XXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+                        "uid": "XXXXXXXXXXXXXXXXXXXXXXXXXXXX",
                     }
                 }
             },
@@ -321,18 +328,17 @@ async def get_user_quiz(quiz_id: str, user=Depends(get_user_token)):
         else:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Cannot find quiz with id {quiz_id}"
+                detail=f"Cannot find quiz with id {quiz_id}",
             )
     except FirebaseError:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 @router.delete(
     "/",
     status_code=status.HTTP_204_NO_CONTENT,
     responses={
-        status.HTTP_204_NO_CONTENT: {
-            "description": "Successful Response"
-        },
+        status.HTTP_204_NO_CONTENT: {"description": "Successful Response"},
         status.HTTP_401_UNAUTHORIZED: {
             "content": {
                 "application/json": {
@@ -350,7 +356,9 @@ async def get_user_quiz(quiz_id: str, user=Depends(get_user_token)):
         status.HTTP_500_INTERNAL_SERVER_ERROR: {},
     },
 )
-async def delete_user_quizzes(body: DeleteUserQuizzes,user=Depends(get_user_token)):
+async def delete_user_quizzes(
+    body: DeleteUserQuizzes, user=Depends(get_user_token)
+):
     """
     Delete user quizzes.
     """
@@ -369,23 +377,22 @@ async def delete_user_quizzes(body: DeleteUserQuizzes,user=Depends(get_user_toke
             )
         else:
             ref = db.reference("Quizzes")
-            user_quizzes = ref.order_by_child("uid").equal_to(user["uid"]).get()
+            user_quizzes = (
+                ref.order_by_child("uid").equal_to(user["uid"]).get()
+            )
             for quiz_id in body.quizzes_ids:
                 if quiz_id in user_quizzes:
                     ref.child(quiz_id).delete()
-            return Response(
-                status_code=status.HTTP_204_NO_CONTENT
-            )
+            return Response(status_code=status.HTTP_204_NO_CONTENT)
     except FirebaseError:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 @router.delete(
     "/{quiz_id}",
     status_code=status.HTTP_204_NO_CONTENT,
     responses={
-        status.HTTP_204_NO_CONTENT: {
-            "description": "Successful Response"
-        },
+        status.HTTP_204_NO_CONTENT: {"description": "Successful Response"},
         status.HTTP_401_UNAUTHORIZED: {
             "content": {
                 "application/json": {
@@ -424,13 +431,11 @@ async def delete_user_quiz(quiz_id: str, user=Depends(get_user_token)):
         user_quizzes = ref.order_by_child("uid").equal_to(user["uid"]).get()
         if quiz_id in user_quizzes:
             ref.child(quiz_id).delete()
-            return Response(
-                status_code=status.HTTP_204_NO_CONTENT
-            )
+            return Response(status_code=status.HTTP_204_NO_CONTENT)
         else:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Cannot find quiz with id {quiz_id}"
+                detail=f"Cannot find quiz with id {quiz_id}",
             )
     except FirebaseError:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -448,27 +453,27 @@ async def delete_user_quiz(quiz_id: str, user=Depends(get_user_token)):
                         "difficulty": "easy",
                         "questions": [
                             {
-                            "correct_answer": "in London in 1912",
-                            "incorrect_answers": [
-                                "in Manchester in 1901",
-                                "in Oxford in 1924",
-                                "in Cambridge in 1935"
-                            ],
-                            "question": "Where and when was Alan Turing born?"
+                                "correct_answer": "in London in 1912",
+                                "incorrect_answers": [
+                                    "in Manchester in 1901",
+                                    "in Oxford in 1924",
+                                    "in Cambridge in 1935",
+                                ],
+                                "question": "Where and when was Alan Turing born?",  # noqa
                             },
                             {
-                            "correct_answer": "a Turing Machine",
-                            "incorrect_answers": [
-                                "the Bombe",
-                                "Church's Computer",
-                                "the Manchester Mach I"
-                            ],
-                            "question": "Turing, while solving the Decision Problem, proposed a hypothetical computing machine, which we now call ___"
-                            }
+                                "correct_answer": "a Turing Machine",
+                                "incorrect_answers": [
+                                    "the Bombe",
+                                    "Church's Computer",
+                                    "the Manchester Mach I",
+                                ],
+                                "question": "Turing, while solving the Decision Problem, proposed a hypothetical computing machine, which we now call ___",  # noqa
+                            },
                         ],
                         "tags": "1910's",
                         "title": "The father of the computer",
-                        "uid": "XXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+                        "uid": "XXXXXXXXXXXXXXXXXXXXXXXXXXXX",
                     }
                 }
             },
@@ -490,7 +495,9 @@ async def delete_user_quiz(quiz_id: str, user=Depends(get_user_token)):
         status.HTTP_500_INTERNAL_SERVER_ERROR: {},
     },
 )
-async def patch_user_quiz(quiz_id: str, body: UpdateUserQuiz, user=Depends(get_user_token)):
+async def patch_user_quiz(
+    quiz_id: str, body: UpdateUserQuiz, user=Depends(get_user_token)
+):
     """
     Update user quiz.
     """
@@ -513,17 +520,15 @@ async def patch_user_quiz(quiz_id: str, body: UpdateUserQuiz, user=Depends(get_u
             user_quiz = UserQuiz(
                 **{
                     **user_quizzes[quiz_id],
-                    **{k: v for k, v in body.dict().items() if v is not None}
+                    **{k: v for k, v in body.dict().items() if v is not None},
                 }
             )
             ref.child(quiz_id).set(user_quiz.dict())
-            return JSONResponse(
-                content=jsonable_encoder(user_quiz)
-            )
+            return JSONResponse(content=jsonable_encoder(user_quiz))
         else:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Cannot find quiz with id {quiz_id}"
+                detail=f"Cannot find quiz with id {quiz_id}",
             )
     except FirebaseError:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
