@@ -11,9 +11,9 @@ from requests import get
 from socketio import AsyncNamespace
 
 from ..config import settings
-from ..utils.points import points_function
-from ..schemas.users import UserAccount
 from ..schemas.quizzes import GameAnswerModel, GameCodeJoinModel, GameJoinModel
+from ..schemas.users import UserAccount
+from ..utils.points import points_function
 
 
 class ConnectionManager(AsyncNamespace):
@@ -376,7 +376,9 @@ class ConnectionManager(AsyncNamespace):
                     if answer_data.answer == correct_answer:
                         self.connections[room]["points"][
                             sid
-                        ] += points_function(answer_data.time)  # time function go here
+                        ] += points_function(
+                            answer_data.time
+                        )  # time function go here
                     await self.emit("answer", correct_answer, sid)
                     self.connections[room]["answered"][sid][
                         current_question

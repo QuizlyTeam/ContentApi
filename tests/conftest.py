@@ -32,33 +32,41 @@ def go_to_tmpdir(request):
     with tmpdir.as_cwd():
         yield
 
+
 @pytest.fixture(scope="function", name="app")
 def _app():
     return app
+
 
 @pytest.fixture(scope="function", name="cli")
 def _cli():
     return cli
 
+
 @pytest.fixture(scope="function", name="settings")
 def _settings():
     return settings
+
 
 @pytest.fixture(scope="function")
 def api_client():
     return TestClient(app)
 
+
 @pytest.fixture(scope="function")
 def cli_client():
     return CliRunner()
+
 
 @pytest.fixture(scope="function", name="requests")
 def _requests():
     return requests
 
+
 @pytest.fixture(scope="function", name="points_function")
 def _points_function():
     return points_function
+
 
 class MockRequests:
     """Mock http requests"""
