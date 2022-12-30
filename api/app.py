@@ -32,7 +32,7 @@ if os.path.exists("key.json"):
         credential,
         options={
             "databaseURL": "https://quizly-70118-default-rtdb.europe-west1.firebasedatabase.app/"  # noqa
-        }
+        },
     )
 else:
     print("\033[93mWARNING\033[0m:  Not found Firebase Admin SDK key")
