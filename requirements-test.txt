@@ -3,6 +3,7 @@ pytest
 pytest-cov
 pytest-picked
 pytest-asyncio
+pytest-mock
 requests-mock
 coverage
 flake8

@@ -4,12 +4,16 @@ from random import shuffle
 from typing import List
 from uuid import uuid4
 
+from firebase_admin import db
+from firebase_admin.exceptions import FirebaseError
 from pydantic import ValidationError
 from requests import get
 from socketio import AsyncNamespace
 
 from ..config import settings
 from ..schemas.quizzes import GameAnswerModel, GameCodeJoinModel, GameJoinModel
+from ..schemas.users import UserAccount
+from ..utils.points import points_function
 
 
 class ConnectionManager(AsyncNamespace):
@@ -49,9 +53,49 @@ class ConnectionManager(AsyncNamespace):
 
         return _url[:-1]
 
+    async def get_questions_from_db(self, sid: str, options: dict) -> None:
+        try:
+            ref = db.reference("Users")
+            user_details = (
+                ref.order_by_child("uid")
+                .equal_to(options["uid"])
+                .limit_to_first(1)
+                .get()
+            )
+            if user_details is None:
+                await self.emit("error", "User cannot be found", room=sid)
+                await self.disconnect(sid)
+            ref = db.reference("Quizzes")
+            user_quizzes = (
+                ref.order_by_child("uid").equal_to(options["uid"]).get()
+            )
+            print(user_quizzes)
+            if options["quiz_id"] in user_quizzes:
+                questions = [
+                    {
+                        "question": q["question"],
+                        "correct_answer": q["correct_answer"],
+                        "answers": [q["correct_answer"]]
+                        + q["incorrect_answers"],
+                    }
+                    for q in user_quizzes[options["quiz_id"]]["questions"]
+                ]
+                print(questions)
+                self.connections[sid]["questions"] = questions
+            else:
+                await self.emit(
+                    "error",
+                    f"Cannot find quiz with id {options['quiz_id']}",
+                    room=sid,
+                )
+                await self.disconnect(sid)
+        except FirebaseError:
+            await self.emit("error", "Connection error", room=sid)
+            await self.disconnect(sid)
+
     async def get_questions(self, sid: str, options: dict) -> None:
         url = settings.server.quiz_api + "/questions"
-        exclude_keys = ["max_players", "with_friends", "name"]
+        exclude_keys = ["max_players", "nickname", "game_options"]
         options_without_exclude_keys = {
             k: options[k]
             for k in set(list(options.keys())) - set(exclude_keys)
@@ -74,8 +118,48 @@ class ConnectionManager(AsyncNamespace):
     async def send_results(self, sid: str) -> None:
         session = self.connections[sid]
         points = session["points"]
-        names = session["names"]
-        await self.emit("results", {names[k]: points[k] for k in names})
+        nicknames = session["nicknames"]
+        await self.emit(
+            "results", {nicknames[k]: points[k] for k in nicknames}
+        )
+        uids = session["uids"]
+        ref = db.reference("Users")
+        for (user, uid) in uids.items():
+            if user in points:
+                user_details = (
+                    ref.order_by_child("uid")
+                    .equal_to(uid)
+                    .limit_to_first(1)
+                    .get()
+                )
+                if user_details is not None:
+                    (key, values) = next(iter(user_details.items()))
+                    update = dict()
+                    if len(points.keys()) > 1:
+                        if (
+                            points[user] == max(points.values())
+                            and max(points.values()) > 0
+                            and list(points.values()).count(
+                                max(points.values())
+                            )
+                            == 1
+                        ):
+                            update["win"] = values["win"] + 1  # win
+                        elif (
+                            points[user] == max(points.values())
+                            and max(points.values()) > 0
+                            and list(points.values()).count(
+                                max(points.values())
+                            )
+                            != 1
+                        ):
+                            pass  # draw
+                        else:
+                            update["lose"] = values["lose"] + 1  # lose
+                    if points[user] > values["max_points"]:
+                        update["max_points"] = points[user]
+                    user_account = UserAccount(**{**values, **update})
+                    ref.child(key).set(user_account.dict())
 
     async def send_questions(self, sid: str) -> None:
         if not self.is_active_connection(sid):
@@ -128,33 +212,44 @@ class ConnectionManager(AsyncNamespace):
                     "current_players": [sid],
                     "points": {sid: 0},
                     "current_question": 0,
-                    "names": {sid: game_options.name},
-                    "answered": {
-                        sid: [False] * game_options.limit  # type: ignore
-                    },
+                    "nicknames": {sid: game_options.nickname},
+                    "uids": {},
+                    "answered": {},
                 }
-                await self.get_questions(sid, game_options.dict())
+                if game_options.uid is not None:
+                    self.connections[sid]["uids"][sid] = game_options.uid
+                if game_options.quiz_id is not None:
+                    await self.get_questions_from_db(sid, game_options.dict())
+                else:
+                    await self.get_questions(sid, game_options.dict())
+                self.connections[sid]["answered"][sid] = [False] * len(self.connections[sid]["questions"])  # type: ignore # noqa
                 await self.send_questions(sid)
                 await self.disconnect(sid)
             else:  # online game
                 if len(self.connections.keys()) > 0:
                     game_options_withou_name = game_options.dict().copy()
-                    game_options_withou_name.pop("name")
+                    game_options_withou_name.pop("nickname")
+                    game_options_withou_name.pop("uid")
                     for room, connection in self.connections.items():
                         if "game_options" in connection:
                             connection_game_options_withou_name = connection[
                                 "game_options"
                             ].copy()  # noqa
-                            connection_game_options_withou_name.pop("name")
+                            connection_game_options_withou_name.pop("nickname")
+                            connection_game_options_withou_name.pop("uid")
                             if (
                                 connection_game_options_withou_name
                                 == game_options_withou_name
                             ):  # noqa
                                 print("it is", room)
                                 self.enter_room(sid, room)
-                                self.connections[room]["names"][
+                                self.connections[room]["nicknames"][
                                     sid
-                                ] = game_options.name  # noqa
+                                ] = game_options.nickname  # noqa
+                                if game_options.uid is not None:
+                                    self.connections[room]["uids"][
+                                        sid
+                                    ] = game_options.uid
                                 await self.emit(
                                     "join",
                                     {
@@ -176,11 +271,21 @@ class ConnectionManager(AsyncNamespace):
                     "current_players": [],
                     "points": {},
                     "current_question": 0,
-                    "names": {sid: game_options.name},
+                    "nicknames": {sid: game_options.nickname},
                     "answered": {},
+                    "uids": {},
                     "game_options": game_options.dict(),
                 }
-                await self.get_questions(sid=room, options=game_options.dict())
+                if game_options.uid is not None:
+                    self.connections[room]["uids"][sid] = game_options.uid
+                if game_options.quiz_id is not None:
+                    await self.get_questions_from_db(
+                        sid=room, options=game_options.dict()
+                    )
+                else:
+                    await self.get_questions(
+                        sid=room, options=game_options.dict()
+                    )
                 await self.emit(
                     "join",
                     {
@@ -192,22 +297,30 @@ class ConnectionManager(AsyncNamespace):
                     to=sid,
                 )
                 await self.wait_for_players(sid=room)
-                if len(self.connections[room]["current_players"]) > 0:
+                if (
+                    "current_players" in self.connections[room]
+                    and len(self.connections[room]["current_players"]) > 0
+                ):
                     await self.send_questions(sid=room)
                 if self.is_active_connection(room):
                     for s in self.connections[room]["current_players"]:
-                        await self.disconnect(s)
+                        if s != sid:
+                            await self.disconnect(s)
                 await self.close_room(room)
                 self.end_connection(room)
+                await self.disconnect(sid)
 
         except ValidationError:
             try:
                 game_code_options = GameCodeJoinModel(**options)
                 if self.is_active_connection(game_code_options.room):
                     self.enter_room(sid, game_code_options.room)
-                    self.connections[game_code_options.room]["names"][
+                    self.connections[game_code_options.room]["nicknames"][
                         sid
-                    ] = game_code_options.name  # noqa
+                    ] = game_code_options.nickname  # noqa
+                    self.connections[game_code_options.room]["uids"][
+                        sid
+                    ] = game_code_options.uid  # noqa
                     await self.emit(
                         "join",
                         {
@@ -232,11 +345,7 @@ class ConnectionManager(AsyncNamespace):
         print(room, sid)
         if sid not in self.connections[room]["current_players"]:
             self.connections[room]["points"][sid] = 0
-            self.connections[room]["answered"][sid] = [
-                False
-            ] * self.connections[room]["game_options"][
-                "limit"
-            ]  # noqa
+            self.connections[room]["answered"][sid] = [False] * len(self.connections[room]["questions"])  # type: ignore # noqa
             self.connections[room]["current_players"].append(sid)
             await self.emit(
                 "join",
@@ -267,7 +376,9 @@ class ConnectionManager(AsyncNamespace):
                     if answer_data.answer == correct_answer:
                         self.connections[room]["points"][
                             sid
-                        ] += 1  # time function go here
+                        ] += points_function(
+                            answer_data.time
+                        )  # time function go here
                     await self.emit("answer", correct_answer, sid)
                     self.connections[room]["answered"][sid][
                         current_question

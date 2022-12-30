@@ -6,3 +6,4 @@ requests
 types-requests
 python-socketio
 httpx
+firebase_admin

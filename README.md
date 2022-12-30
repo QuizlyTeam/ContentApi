@@ -122,7 +122,9 @@ Read more on https://dynaconf.com
 │   ├── routes               # A list of routes available through API
 │   ├── schemas              # Pydantic models
 │   ├── services             # Contains files responsible for working to external APIs, database, etc.
+│   ├── utils                # Contains helper files 
 │   ├── app.py               # The base module for the project
+│   ├── cli.py               # CLI config
 │   ├── __init__.py          # This tells Python that this is a package
 │   ├── __main__.py          # The entry point for the project
 │   └── VERSION              # The version for the project is kept in a static file
@@ -132,7 +134,11 @@ Read more on https://dynaconf.com
 ├── requirements-test.txt    # List of requirements for testing and devlopment
 ├── setup.py                 # The setup.py file for installing and packaging the project
 └── tests                    # Unit tests for the project
+    ├── routes               # Contains testing files for routes
+    ├── services             # Contains testing files for services
+    ├── utils                # Contains testing files for utils
     ├── conftest.py          # Configuration, hooks and fixtures for pytest
     ├── __init__.py          # This tells Python that this is a test package
-    └── test_base.py         # The base test case for the project
+    ├── test_cli.py          # Test CLI config
+    └── test_app.py          # Test the base module of the project
 ```

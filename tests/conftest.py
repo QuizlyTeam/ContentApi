@@ -16,6 +16,7 @@ os.environ["FORCE_ENV_FOR_DYNACONF"] = "testing"  # noqa
 
 from api import sio, app, settings  # noqa
 from api.cli import cli  # noqa
+from api.utils.points import points_function
 
 # deactivate monitoring task in python-socketio to avoid errores during shutdown
 sio.eio.start_service_task = False
@@ -60,6 +61,11 @@ def cli_client():
 @pytest.fixture(scope="function", name="requests")
 def _requests():
     return requests
+
+
+@pytest.fixture(scope="function", name="points_function")
+def _points_function():
+    return points_function
 
 
 class MockRequests:
