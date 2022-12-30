@@ -16,6 +16,7 @@ os.environ["FORCE_ENV_FOR_DYNACONF"] = "testing"  # noqa
 
 from api import sio, app, settings  # noqa
 from api.cli import cli  # noqa
+from api.utils.points import points_function
 
 # deactivate monitoring task in python-socketio to avoid errores during shutdown
 sio.eio.start_service_task = False
@@ -31,36 +32,33 @@ def go_to_tmpdir(request):
     with tmpdir.as_cwd():
         yield
 
-
 @pytest.fixture(scope="function", name="app")
 def _app():
     return app
-
 
 @pytest.fixture(scope="function", name="cli")
 def _cli():
     return cli
 
-
 @pytest.fixture(scope="function", name="settings")
 def _settings():
     return settings
-
 
 @pytest.fixture(scope="function")
 def api_client():
     return TestClient(app)
 
-
 @pytest.fixture(scope="function")
 def cli_client():
     return CliRunner()
-
 
 @pytest.fixture(scope="function", name="requests")
 def _requests():
     return requests
 
+@pytest.fixture(scope="function", name="points_function")
+def _points_function():
+    return points_function
 
 class MockRequests:
     """Mock http requests"""
