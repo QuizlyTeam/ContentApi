@@ -4,9 +4,9 @@ import os
 
 from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
+from firebase_admin import credentials, initialize_app
 from socketio import ASGIApp, AsyncServer
 from starlette.middleware.cors import CORSMiddleware
-from firebase_admin import credentials, initialize_app
 
 from .config import settings
 from .routes import main_router
@@ -25,18 +25,17 @@ def read(*paths, **kwargs):
         content = open_file.read().strip()
     return content
 
+
 if os.path.exists("key.json"):
     credential = credentials.Certificate("key.json")
     initialize_app(
         credential,
         options={
-            "databaseURL": "https://quizly-70118-default-rtdb.europe-west1.firebasedatabase.app/"
+            "databaseURL": "https://quizly-70118-default-rtdb.europe-west1.firebasedatabase.app/"  # noqa
         }
     )
 else:
-    print(
-        "\033[93mWARNING\033[0m:  Not found Firebase Admin SDK key"
-    )
+    print("\033[93mWARNING\033[0m:  Not found Firebase Admin SDK key")
 
 description = """
 ContentAPI helps you do awesome stuff. 🚀

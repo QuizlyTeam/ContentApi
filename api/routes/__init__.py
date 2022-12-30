@@ -10,6 +10,4 @@ main_router.include_router(
     quizzes_router, prefix="/quizzes", tags=[Tags.quizzes]
 )
 
-main_router.include_router(
-    users_router, prefix="/users", tags=[Tags.users]
-)
+main_router.include_router(users_router, prefix="/users", tags=[Tags.users])

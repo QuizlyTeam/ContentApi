@@ -1,6 +1,10 @@
 from collections import OrderedDict
 from firebase_admin.exceptions import FirebaseError
 
+################################################################################
+##                                 POST USER                                  ##
+################################################################################
+
 
 def test_post_user_success(mocker, api_client):
     mocker.patch(
@@ -264,6 +268,11 @@ def test_post_user_failure_firebase(mocker, api_client):
     )
 
     assert response.status_code == 500
+
+
+################################################################################
+##                                 GET USER                                   ##
+################################################################################
 
 
 def test_get_user_success(mocker, api_client):
