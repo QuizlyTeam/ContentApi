@@ -51,7 +51,7 @@ router = APIRouter()
 )
 async def post_user(body: CreateUserAccount, user=Depends(get_user_token)):
     """
-    Create user account.
+    Create a user account.
     """
     userAccount = UserAccount(
         **{
