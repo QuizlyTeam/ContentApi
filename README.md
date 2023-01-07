@@ -10,6 +10,8 @@ cd ContentApi
 make install
 ```
 
+:warning: **if you got errors**: Run `make virtualenv`!
+
 ## Executing
 
 ```bash
@@ -32,9 +34,9 @@ Options:
   --help                          Show this message and exit.
 ```
 
-## API
+## Documentation
 
-Run with `contentapi` and access:
+Run with `contentapi` and access documentation:
 - http://127.0.0.1:8000/docs
 - http://127.0.0.1:8000/redoc
 
@@ -64,47 +66,29 @@ source .venv/bin/activate # Activate virtual environment
 deactivate # Deactivate virtual environment
 ```
 
-## Configuration
-
-This project uses Dynaconf to manage configuration.
-
-```python
-from api.config import settings
-```
-
-### Acessing variables
-
-```python
-settings.get("SECRET_KEY", default="sdnfjbnfsdf")
-settings["SECRET_KEY"]
-settings.SECRET_KEY
-settings.db.uri
-settings["db"]["uri"]
-settings["db.uri"]
-settings.DB__uri
-```
-
-### Defining variables
-
-#### settings.toml
-
-```toml
-[development]
-dynaconf_merge = true
-
-[development.db]
-echo = true
-```
-
-> `dynaconf_merge` is a boolean that tells if the settings should be merged with the default settings defined in api/default.toml.
-
 ### Switching environments
 
 ```bash
 CONTENTAPI_ENV=production contentapi
 ```
 
-Read more on https://dynaconf.com
+Available environments: 
+- development
+- production
+- testing
+
+## Docker
+
+```bash
+docker build -t [image-name] .
+docker run --name [container-name] -e "[variable-name]=[new-value]" -p [PORT]:8000 [image-name]
+```
+
+Example:
+```bash
+docker build -t contentapi .
+docker run --name contentapi_c -e "CONTENTAPI_ENV=production" -p 8000:8000 contentapi
+```
 
 ## Project structure
 
