@@ -224,6 +224,7 @@ class ConnectionManager(AsyncNamespace):
         try:
             await wait_for(periodic(), timeout=30)
         except TimeoutError:
+            self.emit("timeout", None, to=sid)
             print("No more users connect")
 
     async def on_connect(self, sid: str, environ: dict) -> None:
@@ -290,6 +291,13 @@ class ConnectionManager(AsyncNamespace):
                                                 "current_players"
                                             ]
                                         ),
+                                        "max_number_of_players": self.connections[
+                                            room
+                                        ][
+                                            "game_options"
+                                        ][
+                                            "max_players"
+                                        ],
                                     },
                                     to=sid,
                                 )
@@ -324,6 +332,9 @@ class ConnectionManager(AsyncNamespace):
                         "number_of_players": len(
                             self.connections[room]["current_players"]
                         ),
+                        "max_number_of_players": self.connections[room][
+                            "game_options"
+                        ]["max_players"],
                     },
                     to=sid,
                 )
@@ -361,6 +372,9 @@ class ConnectionManager(AsyncNamespace):
                                     "current_players"
                                 ]
                             ),
+                            "max_number_of_players": self.connections[room][
+                                "game_options"
+                            ]["max_players"],
                         },
                         to=sid,
                     )
@@ -389,6 +403,9 @@ class ConnectionManager(AsyncNamespace):
                     "number_of_players": len(
                         self.connections[room]["current_players"]
                     ),
+                    "max_number_of_players": self.connections[room][
+                        "game_options"
+                    ]["max_players"],
                 },
                 to=room,
             )

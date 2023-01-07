@@ -68,6 +68,7 @@ def _requests():
 def _points_function():
     return points_function
 
+
 @pytest.fixture(scope="function", name="parse_url")
 def _parse_url():
     return parse_url
