@@ -9,6 +9,12 @@ def get_user_token(
         HTTPBearer(auto_error=False)
     ),
 ):
+    """
+    Take the input credentials and verify them with Firebase. If they are valid, return the decoded token.
+    :param res: - the response object
+    :param credential: - the credentials
+    :return: The decoded token
+    """
     if credential is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

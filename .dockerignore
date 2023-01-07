@@ -1,0 +1,8 @@
+.mypy_cache
+.pytest_cache
+.venv
+ContentAPI.egg-info
+htmlcov
+.coverage
+coverage.xml
+LICENSE

@@ -41,7 +41,7 @@ router = APIRouter()
 )
 async def get_categories():
     """
-    Get quiz categories.
+    Get the categories from the quiz api.
     """
     result = get(f"{settings.server.quiz_api}/categories")
     categories = list(result.json().keys())
@@ -70,7 +70,7 @@ async def get_categories():
 )
 async def get_tags():
     """
-    Get tags.
+    Get the tags from the quiz server.
     """
     result = get(f"{settings.server.quiz_api}/tags")
     tags = list(result.json())
@@ -138,7 +138,7 @@ async def get_tags():
 )
 async def post_user_quiz(body: CreateUserQuiz, user=Depends(get_user_token)):
     """
-    Create user quiz.
+    Create a user quiz.
     """
     userQuiz = UserQuiz(**{"uid": user["uid"], **body.dict()})
     try:
@@ -222,7 +222,7 @@ async def post_user_quiz(body: CreateUserQuiz, user=Depends(get_user_token)):
 )
 async def get_user_quizzes(user=Depends(get_user_token)):
     """
-    Get all user quizzes.
+    Get the user's quizzes from the database.
     """
     try:
         ref = db.reference("Users")
@@ -412,7 +412,7 @@ async def delete_user_quizzes(
 )
 async def delete_user_quiz(quiz_id: str, user=Depends(get_user_token)):
     """
-    Delete user quiz.
+    Delete a user quiz.
     """
     try:
         ref = db.reference("Users")

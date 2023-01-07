@@ -13,6 +13,7 @@ from socketio import AsyncNamespace
 from ..config import settings
 from ..schemas.quizzes import GameAnswerModel, GameCodeJoinModel, GameJoinModel
 from ..schemas.users import UserAccount
+from ..utils.parse_url import parse_url
 from ..utils.points import points_function
 
 
@@ -26,9 +27,18 @@ class ConnectionManager(AsyncNamespace):
         self.connections: dict = defaultdict(dict)
 
     def get_rooms(self, sid: str) -> List[str]:
+        """
+        Given a session id, return a list of all the rooms.
+        :param sid: - the session id
+        :return: a list of all the rooms
+        """
         return list(filter(lambda x: x != sid, self.rooms(sid)))
 
     def end_connection(self, sid: str) -> None:
+        """
+        When a player disconnects, remove them from the list of current players in the room.
+        :param sid: - the session id of the player disconnecting
+        """
         if len(self.rooms(sid)) > 1:
             room = self.get_rooms(sid)[0]
             if len(self.connections[room]["current_players"]) > 0:
@@ -39,21 +49,19 @@ class ConnectionManager(AsyncNamespace):
             self.connections.pop(sid, None)
 
     def is_active_connection(self, sid: str) -> bool:
+        """
+        Check if the session id is in the active connections dictionary.
+        :param sid: - the session id
+        :return: True if the session id is in the active connections dictionary, False otherwise.
+        """
         return sid in self.connections
 
-    def parse_url(self, url: str, options: dict) -> str:
-        _url = url + "?"
-        for key, value in options.items():
-            if value is not None:
-                if isinstance(value, list):
-                    _url += key + "=" + ",".join(value)
-                else:
-                    _url += key + "=" + str(value)
-                _url += "&"
-
-        return _url[:-1]
-
     async def get_questions_from_db(self, sid: str, options: dict) -> None:
+        """
+        Get the questions from the database for the quiz with the given id.
+        :param sid: - the socket id of the client requesting the questions.
+        :param options: - the options dictionary containing the quiz id.
+        """
         try:
             ref = db.reference("Users")
             user_details = (
@@ -94,13 +102,18 @@ class ConnectionManager(AsyncNamespace):
             await self.disconnect(sid)
 
     async def get_questions(self, sid: str, options: dict) -> None:
+        """
+        Get the questions from the server.
+        :param sid: - the socket id of the client requesting questions.
+        :param options: - the options for the game.
+        """
         url = settings.server.quiz_api + "/questions"
         exclude_keys = ["max_players", "nickname", "game_options"]
         options_without_exclude_keys = {
             k: options[k]
             for k in set(list(options.keys())) - set(exclude_keys)
         }
-        result = get(self.parse_url(url, options_without_exclude_keys))
+        result = get(parse_url(url, options_without_exclude_keys))
         if result.status_code == 200:
             questions = [
                 {
@@ -116,6 +129,10 @@ class ConnectionManager(AsyncNamespace):
             await self.disconnect(sid)
 
     async def send_results(self, sid: str) -> None:
+        """
+        Send the results of the game to the database.
+        :param sid: - the session id
+        """
         session = self.connections[sid]
         points = session["points"]
         nicknames = session["nicknames"]
@@ -162,6 +179,10 @@ class ConnectionManager(AsyncNamespace):
                     ref.child(key).set(user_account.dict())
 
     async def send_questions(self, sid: str) -> None:
+        """
+        Send the questions, the correct answer and results to the client.
+        :param sid: - the session id of the client.
+        """
         if not self.is_active_connection(sid):
             return
         session_data = self.connections[sid]
@@ -184,6 +205,11 @@ class ConnectionManager(AsyncNamespace):
         await self.send_results(sid)
 
     async def wait_for_players(self, sid: str) -> None:
+        """
+        Wait for the players to connect before starting the game.
+        :param sid: - the session id
+        """
+
         async def periodic():
             while True:
                 if not self.is_active_connection(sid):
@@ -205,6 +231,11 @@ class ConnectionManager(AsyncNamespace):
         pass
 
     async def on_join(self, sid: str, options) -> None:
+        """
+        Handle joining players to games
+        :param sid: - the session id
+        :param options: - the options for the game
+        """
         try:
             game_options = GameJoinModel(**options)  # validate input
 
@@ -355,6 +386,10 @@ class ConnectionManager(AsyncNamespace):
                 await self.disconnect(sid)
 
     async def on_ready(self, sid: str) -> None:
+        """
+        This event is called when a player is ready.
+        :param sid: - the session id
+        """
         room = self.get_rooms(sid)[0]
         print(room, sid)
         if sid not in self.connections[room]["current_players"]:
@@ -376,6 +411,11 @@ class ConnectionManager(AsyncNamespace):
             )
 
     async def on_answer(self, sid: str, data: dict) -> None:
+        """
+        When a user answers a question, this event is called. It will check if the answer is correct, and if so, it will award the user with points.
+        :param sid: - the socket id of the user answering the question
+        :param data: - the data sent by the user
+        """
         room = sid if len(self.get_rooms(sid)) == 0 else self.get_rooms(sid)[0]
         if self.is_active_connection(room):
             try:
@@ -406,8 +446,16 @@ class ConnectionManager(AsyncNamespace):
                 await self.disconnect(sid)
 
     async def on_end(self, sid: str) -> None:
+        """
+        When a client end the game.
+        :param sid: - the session id of the client ending game.
+        """
         self.end_connection(sid)
 
     def on_disconnect(self, sid: str) -> None:
+        """
+        When a client disconnects, end the connection.
+        :param sid: - the session id of the client disconnecting.
+        """
         self.end_connection(sid)
         print("disconnect")
