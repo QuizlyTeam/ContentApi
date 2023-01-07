@@ -13,8 +13,8 @@ from socketio import AsyncNamespace
 from ..config import settings
 from ..schemas.quizzes import GameAnswerModel, GameCodeJoinModel, GameJoinModel
 from ..schemas.users import UserAccount
-from ..utils.points import points_function
 from ..utils.parse_url import parse_url
+from ..utils.points import points_function
 
 
 class ConnectionManager(AsyncNamespace):
@@ -209,6 +209,7 @@ class ConnectionManager(AsyncNamespace):
         Wait for the players to connect before starting the game.
         :param sid: - the session id
         """
+
         async def periodic():
             while True:
                 if not self.is_active_connection(sid):

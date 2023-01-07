@@ -1,4 +1,4 @@
-def parse_url(self, url: str, options: dict) -> str:
+def parse_url(url: str, options: dict) -> str:
     """
     Parse the url and add the options to it.
     :param url: - the url to parse

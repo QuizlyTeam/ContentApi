@@ -8,6 +8,7 @@ class CreateUserAccount(BaseModel):
     This is used to create a new user account.
     :param nickname: - the nickname for the user account.
     """
+
     nickname: str = Field(
         min_length=3,
         max_length=30,
@@ -27,6 +28,7 @@ class UserAccount(BaseModel):
     :param favourite_category: - the favourite category of the user account.
     :param max_points: - the maximum points of the user account.
     """
+
     uid: str = Field(min_length=28, max_length=28)
     nickname: str = Field(
         min_length=3,

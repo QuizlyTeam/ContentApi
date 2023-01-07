@@ -8,6 +8,7 @@ class CategoriesModel(BaseModel):
     A model that contains a list of categories.
     :param categories: - the list of categories
     """
+
     categories: List[str]
 
 
@@ -16,6 +17,7 @@ class TagsModel(BaseModel):
     A model that contains a list of tags.
     :param tags: - the list of tags
     """
+
     tags: List[str]
 
 
@@ -31,6 +33,7 @@ class GameJoinModel(BaseModel):
     :param tags: - the tags of the game
     :param max_players: - the max players of the game
     """
+
     nickname: str = Field(
         min_length=3,
         max_length=30,
@@ -65,6 +68,7 @@ class GameCodeJoinModel(BaseModel):
     :param room: - websocket's room
     :param uid: - the uid of the user
     """
+
     room: str
     nickname: str = Field(
         min_length=3,
@@ -81,6 +85,7 @@ class GameAnswerModel(BaseModel):
     """
     The GameAnswerModel class for the game answer model.
     """
+
     answer: str
     time: Union[float, int]
 
@@ -90,8 +95,9 @@ class GameAnswerModel(BaseModel):
 
 class Question(BaseModel):
     """
-    The Question class defines the question structure. 
+    The Question class defines the question structure.
     """
+
     question: str
     correct_answer: str
     incorrect_answers: List[str]
@@ -110,6 +116,7 @@ class UserQuiz(BaseModel):
     :param tags: - the quiz tags
     :param questions: - the questions in the quiz
     """
+
     uid: str = Field(min_length=28, max_length=28)
     title: str = Field(min_length=1, max_length=200)
     category: Union[str, List[str]] = Field(min_length=5, max_length=30)
@@ -123,6 +130,7 @@ class UserQuizzes(BaseModel):
     The UserQuizzes class is used to store the quiz_id.
     :param quiz_id: - the quiz_id of the quiz.
     """
+
     quiz_id: UserQuiz
 
 
@@ -131,6 +139,7 @@ class DeleteUserQuizzes(BaseModel):
     The DeleteUserQuizzes class is used to store the quizzes_ids to delete.
     @param quizzes_ids - the quizzes ids to delete
     """
+
     quizzes_ids: List[str]
 
     class Config:
@@ -146,6 +155,7 @@ class CreateUserQuiz(BaseModel):
     :param tags: - the tags of the quiz.
     :param questions: - the questions of the quiz.
     """
+
     title: str = Field(min_length=1, max_length=200)
     category: Union[str, List[str]] = Field(min_length=5, max_length=30)
     difficulty: Literal["easy", "medium", "hard"]
@@ -165,6 +175,7 @@ class UpdateUserQuiz(BaseModel):
     :param tags: - the tags of the quiz.
     :param questions: - the questions of the quiz.
     """
+
     title: Optional[str] = Field(min_length=1, max_length=200)
     category: Optional[Union[str, List[str]]] = Field(
         min_length=5, max_length=30
