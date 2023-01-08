@@ -16,6 +16,7 @@ port = 8000
 host = "127.0.0.1"
 log_level = "error"
 reload = false
+cors_origins = []
 
 [testing]
 dynaconf_merge = true
