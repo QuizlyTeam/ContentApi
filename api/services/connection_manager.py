@@ -224,8 +224,9 @@ class ConnectionManager(AsyncNamespace):
         try:
             await wait_for(periodic(), timeout=30)
         except TimeoutError:
-            self.emit("timeout", None, to=sid)
             print("No more users connect")
+            await self.emit("timeout", None, to=sid)
+            await sleep(0.5)
 
     async def on_connect(self, sid: str, environ: dict) -> None:
         pass
