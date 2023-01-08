@@ -18,6 +18,7 @@ from api import sio, app, settings  # noqa
 from api.cli import cli  # noqa
 from api.utils.points import points_function
 from api.utils.parse_url import parse_url
+from api.utils.timestamp import get_timestamp
 
 # deactivate monitoring task in python-socketio to avoid errores during shutdown
 sio.eio.start_service_task = False
@@ -72,6 +73,11 @@ def _points_function():
 @pytest.fixture(scope="function", name="parse_url")
 def _parse_url():
     return parse_url
+
+
+@pytest.fixture(scope="function", name="get_timestamp")
+def _get_timestamp():
+    return get_timestamp
 
 
 class MockRequests:

@@ -12,7 +12,7 @@ def test_post_user_success(mocker, api_client):
         return_value={
             "uid": "XXXXXXXXXXXXXXXXXXXXXXXXXXXX",
             "name": "Alan Turing",
-            "picture": "http://t2.gstatic.com/licensed-image?q=tbn:ANd9GcQCUUTlwrAsh5cZ9yds4YIELmAgLT-kyXXJ7vhrzQLriwYb3VQqSTToKpq7heaNcMZX",  # noqa
+            "picture": "https://firebasestorage.googleapis.com/v0/b/quizly-70118.appspot.com/o/unknown_user.png?alt=media&token=082b6b49-2ad6-4d57-a93f-47f5a82041e4",  # noqa
         },
     )
 
@@ -20,7 +20,61 @@ def test_post_user_success(mocker, api_client):
         "uid": "XXXXXXXXXXXXXXXXXXXXXXXXXXXX",
         "name": "Alan Turing",
         "nickname": "turingComplete",
-        "picture": "http://t2.gstatic.com/licensed-image?q=tbn:ANd9GcQCUUTlwrAsh5cZ9yds4YIELmAgLT-kyXXJ7vhrzQLriwYb3VQqSTToKpq7heaNcMZX",  # noqa
+        "picture": "https://firebasestorage.googleapis.com/v0/b/quizly-70118.appspot.com/o/unknown_user.png?alt=media&token=082b6b49-2ad6-4d57-a93f-47f5a82041e4",  # noqa
+        "win": 0,
+        "lose": 0,
+        "favourite_category": "-",
+        "max_points": 0,
+    }
+
+    class MockDB:
+        def __init__(self):
+            pass
+
+        def order_by_child(self, arg):
+            return self
+
+        def equal_to(self, arg):
+            return self
+
+        def limit_to_first(self, arg):
+            return self
+
+        def get(self):
+            return None
+
+        def push(self):
+            return self
+
+        def set(self, arg):
+            pass
+
+    mocker.patch("firebase_admin.db.reference", return_value=MockDB())
+
+    response = api_client.post(
+        "/v1/users/",
+        headers={"Authorization": "Bearer firebaserusertokenid"},
+        json={"nickname": "turingComplete"},
+    )
+
+    assert response.status_code == 201
+    result = response.json()
+    assert result == expected_result
+
+
+def test_post_user_success_without_data(mocker, api_client):
+    mocker.patch("api.routes.users.get_timestamp", return_value=420)
+
+    mocker.patch(
+        "firebase_admin.auth.verify_id_token",
+        return_value={"uid": "XXXXXXXXXXXXXXXXXXXXXXXXXXXX"},
+    )
+
+    expected_result = {
+        "uid": "XXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+        "name": "somebody420",
+        "nickname": "turingComplete",
+        "picture": "https://firebasestorage.googleapis.com/v0/b/quizly-70118.appspot.com/o/unknown_user.png?alt=media&token=082b6b49-2ad6-4d57-a93f-47f5a82041e4",  # noqa
         "win": 0,
         "lose": 0,
         "favourite_category": "-",
@@ -99,7 +153,7 @@ def test_post_user_failure_account(mocker, api_client):
         return_value={
             "uid": "XXXXXXXXXXXXXXXXXXXXXXXXXXXX",
             "name": "Alan Turing",
-            "picture": "http://t2.gstatic.com/licensed-image?q=tbn:ANd9GcQCUUTlwrAsh5cZ9yds4YIELmAgLT-kyXXJ7vhrzQLriwYb3VQqSTToKpq7heaNcMZX",  # noqa
+            "picture": "https://firebasestorage.googleapis.com/v0/b/quizly-70118.appspot.com/o/unknown_user.png?alt=media&token=082b6b49-2ad6-4d57-a93f-47f5a82041e4",  # noqa
         },
     )
 
@@ -127,7 +181,7 @@ def test_post_user_failure_account(mocker, api_client):
                             "uid": "XXXXXXXXXXXXXXXXXXXXXXXXXXXX",
                             "name": "Alan Turing",
                             "nickname": "turingComplete",
-                            "picture": "http://t2.gstatic.com/licensed-image?q=tbn:ANd9GcQCUUTlwrAsh5cZ9yds4YIELmAgLT-kyXXJ7vhrzQLriwYb3VQqSTToKpq7heaNcMZX",  # noqa
+                            "picture": "https://firebasestorage.googleapis.com/v0/b/quizly-70118.appspot.com/o/unknown_user.png?alt=media&token=082b6b49-2ad6-4d57-a93f-47f5a82041e4",  # noqa
                             "win": 0,
                             "lose": 0,
                             "favourite_category": "-",
@@ -162,7 +216,7 @@ def test_post_user_failure_nickname(mocker, api_client):
         return_value={
             "uid": "XXXXXXXXXXXXXXXXXXXXXXXXXXXX",
             "name": "Alan Turing",
-            "picture": "http://t2.gstatic.com/licensed-image?q=tbn:ANd9GcQCUUTlwrAsh5cZ9yds4YIELmAgLT-kyXXJ7vhrzQLriwYb3VQqSTToKpq7heaNcMZX",  # noqa
+            "picture": "https://firebasestorage.googleapis.com/v0/b/quizly-70118.appspot.com/o/unknown_user.png?alt=media&token=082b6b49-2ad6-4d57-a93f-47f5a82041e4",  # noqa
         },
     )
 
@@ -194,7 +248,7 @@ def test_post_user_failure_nickname(mocker, api_client):
                                 "uid": "YYYYYYYYYYYYYYYYYYYYYYYYYYYY",
                                 "name": "Alan Turing",
                                 "nickname": "turingComplete",
-                                "picture": "http://t2.gstatic.com/licensed-image?q=tbn:ANd9GcQCUUTlwrAsh5cZ9yds4YIELmAgLT-kyXXJ7vhrzQLriwYb3VQqSTToKpq7heaNcMZX",  # noqa
+                                "picture": "https://firebasestorage.googleapis.com/v0/b/quizly-70118.appspot.com/o/unknown_user.png?alt=media&token=082b6b49-2ad6-4d57-a93f-47f5a82041e4",  # noqa
                                 "win": 0,
                                 "lose": 0,
                                 "favourite_category": "-",
@@ -229,7 +283,7 @@ def test_post_user_failure_validation(mocker, api_client):
         return_value={
             "uid": "XXXXXXXXXXXXXXXXXXXXXXXXXXXX",
             "name": "Alan Turing",
-            "picture": "http://t2.gstatic.com/licensed-image?q=tbn:ANd9GcQCUUTlwrAsh5cZ9yds4YIELmAgLT-kyXXJ7vhrzQLriwYb3VQqSTToKpq7heaNcMZX",  # noqa
+            "picture": "https://firebasestorage.googleapis.com/v0/b/quizly-70118.appspot.com/o/unknown_user.png?alt=media&token=082b6b49-2ad6-4d57-a93f-47f5a82041e4",  # noqa
         },
     )
 
@@ -248,7 +302,7 @@ def test_post_user_failure_firebase(mocker, api_client):
         return_value={
             "uid": "XXXXXXXXXXXXXXXXXXXXXXXXXXXX",
             "name": "Alan Turing",
-            "picture": "http://t2.gstatic.com/licensed-image?q=tbn:ANd9GcQCUUTlwrAsh5cZ9yds4YIELmAgLT-kyXXJ7vhrzQLriwYb3VQqSTToKpq7heaNcMZX",  # noqa
+            "picture": "https://firebasestorage.googleapis.com/v0/b/quizly-70118.appspot.com/o/unknown_user.png?alt=media&token=082b6b49-2ad6-4d57-a93f-47f5a82041e4",  # noqa
         },
     )
 
@@ -285,7 +339,7 @@ def test_get_user_success(mocker, api_client):
         "uid": "XXXXXXXXXXXXXXXXXXXXXXXXXXXX",
         "name": "Alan Turing",
         "nickname": "turingComplete",
-        "picture": "http://t2.gstatic.com/licensed-image?q=tbn:ANd9GcQCUUTlwrAsh5cZ9yds4YIELmAgLT-kyXXJ7vhrzQLriwYb3VQqSTToKpq7heaNcMZX",  # noqa
+        "picture": "https://firebasestorage.googleapis.com/v0/b/quizly-70118.appspot.com/o/unknown_user.png?alt=media&token=082b6b49-2ad6-4d57-a93f-47f5a82041e4",  # noqa
         "win": 0,
         "lose": 0,
         "favourite_category": "-",
