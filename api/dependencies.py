@@ -1,3 +1,5 @@
+from typing import Any, Dict
+
 from fastapi import Depends, HTTPException, Response, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from firebase_admin import auth
@@ -8,7 +10,7 @@ def get_user_token(
     credential: HTTPAuthorizationCredentials = Depends(
         HTTPBearer(auto_error=False)
     ),
-):
+) -> Dict[str, Any]:
     """
     Take the input credentials and verify them with Firebase. If they are valid, return the decoded token.
     :param res: - the response object
