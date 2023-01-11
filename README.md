@@ -1,6 +1,9 @@
 # ContentApi
 
-ContentApi is a REST API, which expose interfaces for our mobile application. List of available endpoints - [HERE](https://quizlyteam.github.io/ContentApi/).
+ContentAPI power its platform for quizzes. It's divied into Rest API and websockets. First one allows simple queries against categories / quizzes / user's quizzes / tags. Second one is responsible to handle quiz game.
+
+> ❗ **NOTICE** ❗ \
+> You need to add `key.json` to access functions that use Firebase
 
 ## Installation
 
@@ -36,7 +39,10 @@ Options:
 
 ## Documentation
 
-Run with `contentapi` and access documentation:
+[REST API](https://quizlyteam.github.io/ContentApi/) - list of available rest api endpoints \
+[WEBSOCKETS](https://quizlyteam.github.io/ContentApi/websockets/) - list of available events / messages
+
+You can access live documentation by running `contentapi` and going into one of the websites: 
 - http://127.0.0.1:8000/docs
 - http://127.0.0.1:8000/redoc
 
@@ -101,6 +107,7 @@ docker run --name contentapi_c -e "CONTENTAPI_ENV=production" -p 8000:8000 conte
 ├── LICENSE                  # The license for the project
 ├── Makefile                 # A collection of utilities to manage the project
 ├── MANIFEST.in              # A list of files to include in a package
+├── key.json                 # Firebase Admin SDK key
 ├── api                      # The main python package for the project
 │   ├── constants            # A list of constants in API
 │   ├── routes               # A list of routes available through API
