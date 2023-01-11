@@ -1,0 +1,183 @@
+asyncapi: '2.5.0'
+info:
+  title: ContentAPI Websockets
+  version: 1.0.2
+  description: ContentAPI Websockets are responsible to handle quiz game. 🚀 
+servers:
+  public:
+    url: 127.0.0.1
+    protocol: wss
+    description: |
+      Public server available without authorization.
+      Once the socket is open, you can subscribe to a public channel by sending a subscribe request message.
+channels:
+  /:
+    publish:
+      description: Send messages to the API
+      message:
+        oneOf:
+          - $ref: '#/components/messages/connect'
+          - $ref: '#/components/messages/disconnect'
+          - $ref: '#/components/messages/end'
+          - $ref: '#/components/messages/join'
+          - $ref: '#/components/messages/ready'
+          - $ref: '#/components/messages/answer'
+
+
+    subscribe:
+      description: Messages that you receive from the API
+      message:
+        oneOf:
+          - $ref: '#/components/messages/timeout'
+          - $ref: '#/components/messages/error'
+          - $ref: '#/components/messages/join_response'
+          - $ref: '#/components/messages/question'
+          - $ref: '#/components/messages/answer_response'
+          - $ref: '#/components/messages/results'
+
+components:
+  messages:
+    connect:
+      summary: Connect to server
+    disconnect:
+      summary: Disconnect from server
+    end:
+      summary: Player ends game
+    error:
+      summary: Inform about error
+      description: Send detail info about error
+      payload:
+        $ref: '#/components/schemas/error'
+    timeout:
+      summary: Inform about waiting too long to join other players
+    join:
+      summary: Handle joining players to games
+      description: The client specifies game options, the server looks for or creates a game with the specified options.
+      payload:
+        $ref: '#/components/schemas/join'
+      x-response:
+        $ref: '#/components/messages/join_response'
+    join_response:
+      name: join
+      summary: Inform about assigned room and players inside.
+      description: This information is send only if user specified 'max_players' option with value greater than one
+      payload:
+        $ref: '#/components/schemas/join_response'
+    ready:
+      summary: The player announces that he is ready
+      description: This event is called when a player is ready
+    answer:
+      summary: The player answer question
+      description: When a user answers a question, this event is called. It will check if the answer is correct, and if so, it will award the user with points.
+      payload:
+        $ref: '#/components/schemas/answer'
+      x-response:
+        $ref: '#/components/messages/answer_response'
+    answer_response:
+      name: answer
+      summary: Inform if this is the correct answer
+      description: Checks whether the given answer is correct and returns the correct one
+      payload:
+        $ref: '#/components/schemas/answer_response'
+    question:
+      summary: Send current question
+      payload:
+        $ref: '#/components/schemas/question'
+    results:
+      summary: Send game results
+      payload:
+        $ref: '#/components/schemas/results'
+  schemas:
+    join:
+      type: object
+      properties:
+        nickname:
+          type: string
+          description: the nickname of the user
+          minLength: 3
+          maxLength: 30
+        uid:
+          type: string
+          description: the uid of the user
+        quiz_id:
+          type: string
+          description: the quiz id of the game
+        categories:
+          type: string
+          description: the categories of the game
+        difficulty:
+          type: string
+          description: the difficulty of the game
+          enum:
+            - easy
+            - medium
+            - hard
+        limit:
+          type: integer
+          description: the limit of the game
+          default: 5
+        tags:
+          type: [string]
+          description: the tags of the game
+        max_players:
+          type: integer
+          description:  the max players of the game
+          default: 1
+        room:
+          type: string
+          description: websocket's room
+      required:
+        - nickname
+      additionalProperties: false
+    join_response:
+      type: object
+      properties:
+        room:
+          type: string
+          description: websocket's room
+        number_of_players:
+          type: integer
+          description: Number of currently joined players
+        max_number_of_players:
+          type: integer
+          description: Maximum number of available players in the room
+      additionalProperties: false
+    answer:
+      type: object
+      properties:
+        answer:
+          type: string
+          description: Answer
+        time:
+          type: number
+          description: Time in seconds spend on answer 
+          format: float 
+      required:
+        - answer
+        - time
+      additionalProperties: false
+    answer_response:
+      type: string
+      description: Correct answer
+    error:
+      type: string
+      description: Error message
+    question:
+      type: object
+      properties:
+        question:
+          type: string
+          description: Current question
+        answers:
+          type: array
+          description: Available answers
+          items:
+            type: string
+      additionalProperties: false
+    results:
+      type: object
+      properties:
+        nickname:
+          type: integer
+          description: Points collected by player 'nickname'
+      additionalProperties: false
