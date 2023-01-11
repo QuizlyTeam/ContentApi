@@ -39,6 +39,8 @@ else:
 
 description = """
 ContentAPI helps you do awesome stuff. 🚀
+
+ContentAPI power its platform for quizzes. It allows simple queries against categories / quizzes / user's quizzes / tags. 
 """
 
 version = read("VERSION")
