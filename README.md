@@ -15,7 +15,10 @@ make install
 
 :warning: **if you got errors**: Run `make virtualenv`!
 
-## Executing
+## Executing the API server.
+
+To run API server, you should run `contentapi`. 
+Available options with this command:
 
 ```bash
 contentapi --help
@@ -37,7 +40,7 @@ Options:
   --help                          Show this message and exit.
 ```
 
-## Documentation
+## Documentation 🗎
 
 [REST API](https://quizlyteam.github.io/ContentApi/) - list of available rest api endpoints \
 [WEBSOCKETS](https://quizlyteam.github.io/ContentApi/websockets/) - list of available events / messages
@@ -83,7 +86,7 @@ Available environments:
 - production
 - testing
 
-## Docker
+## Docker 🐳
 
 ```bash
 docker build -t [image-name] .
