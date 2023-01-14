@@ -1,4 +1,5 @@
 # ContentApi
+[![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)](https://www.python.org/)[![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com/)[![Pytest](https://img.shields.io/static/v1?style=for-the-badge&message=Pytest&color=0A9EDC&logo=Pytest&logoColor=FFFFFF&label=)](https://docs.pytest.org/en/7.2.x/)[![Socket.io](https://img.shields.io/badge/Socket.io-black?style=for-the-badge&logo=socket.io&badgeColor=010101)](https://python-socketio.readthedocs.io/en/latest/)[![Firebase](https://img.shields.io/badge/firebase-%23039BE5.svg?style=for-the-badge&logo=firebase)](https://firebase.google.com/)
 
 ContentAPI power its platform for quizzes. It's divied into Rest API and websockets. First one allows simple queries against categories / quizzes / user's quizzes / tags. Second one is responsible to handle quiz game.
 
@@ -136,3 +137,7 @@ docker run --name contentapi_c -e "CONTENTAPI_ENV=production" -p 8000:8000 conte
     ├── test_cli.py          # Test CLI config
     └── test_app.py          # Test the base module of the project
 ```
+
+## License
+[![Licence](https://img.shields.io/github/license/QuizlyTeam/ContentApi?style=for-the-badge)](./LICENSE)
+
